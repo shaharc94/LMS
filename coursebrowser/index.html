@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בחירת לומדות</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- Logo Placeholder -->
+    <div class="logo-container">
+        <a href="https://www.google.com"><img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="לוגו של הארגון" class="logo"></a>
+    </div>
+
+    <h1>בחר/י לומדה מהאפשרויות הזמינות</h1>
+    <div class="courses-grid">
+        <!-- לומדה למניעת הטרדה מינית -->
+        <div class="course-card">
+            <div class="course-image">תמונה</div>
+            <div class="course-title">לומדה למניעת הטרדה מינית</div>
+            <div class="course-description">
+                למד/י על הדרכים למניעת הטרדה מינית במקום העבודה וליצירת סביבת עבודה בטוחה ומכבדת לכולם. הלומדה מכסה את החקיקה הרלוונטית, חובות המעסיק והעובד, ודרכי הפעולה במקרה של הטרדה.
+            </div>
+            <div class="course-actions">
+                <a href="courseviewer1.html"><button>בחר/י לומדה</button></a>
+            </div>
+        </div>
+
+        <!-- לומדת בטיחות -->
+        <div class="course-card">
+            <div class="course-image">תמונה</div>
+            <div class="course-title">לומדת בטיחות</div>
+            <div class="course-description">
+                למד/י את כללי הבטיחות החשובים ביותר בסביבת העבודה שלך. הלומדה כוללת הנחיות להתנהלות בטוחה, זיהוי סיכונים והפחתתם, ושמירה על בריאות וביטחון העובדים.
+            </div>
+            <div class="course-actions">
+                <a href="courseviewer2.html"><button>בחר/י לומדה</button></a>
+            </div>
+        </div>
+
+        <!-- לומדת אבטחת מידע -->
+        <div class="course-card">
+            <div class="course-image">תמונה</div>
+            <div class="course-title">לומדת אבטחת מידע</div>
+            <div class="course-description">
+                למד/י כיצד להגן על מידע רגיש בסביבת העבודה. הלומדה עוסקת באיומים הקיימים, כללי אבטחת המידע, והדרכים לשמירה על פרטיות ואבטחת המידע של הארגון והלקוחות.
+            </div>
+            <div class="course-actions">
+                <a href="courseviewer3.html"><button>בחר/י לומדה</button></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="access-code-container">
+        <input type="text" id="access-code" placeholder="הכנס/י קוד גישת מנהל" onkeypress="checkEnter(event)">
+        <button onclick="validateCode()">אישור</button>
+        <div class="error-message" id="error-message">קוד גישה שגוי. נסה/י שוב.</div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

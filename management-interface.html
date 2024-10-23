@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ממשק ניהול למידה</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            margin-bottom: 20px;
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: auto;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+        }
+
+        .h-64 {
+            min-height: 300px;
+            background-color: #eaeaea;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0088FE;
+            color: white;
+            cursor: pointer;
+            margin: 10px 20px;
+        }
+
+        .button:hover {
+            background-color: #005fbb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background-color: #f9f9f9;
+            color: #000;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            cursor: pointer;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        th.sortable:hover {
+            background-color: #e0e0e0;
+        }
+
+        td {
+            background-color: #fff;
+        }
+
+        .hide-column {
+            display: none;
+        }
+
+        select, input[type="text"] {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            direction: rtl;
+            text-align: right;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]::placeholder {
+            text-align: right;
+        }
+
+        #userCount {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        #loading .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #0088FE;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .back-button {
+        background-color: #6c757d;
+        }
+
+        .back-button:hover {
+        background-color: #5a6268;
+        }
+        
+        .table-wrapper {
+        overflow-x: auto; /* Enables horizontal scrolling */
+        width: 100%; /* Ensures the wrapper spans the full width */
+        }
+
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .pagination .button {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            margin: 20px;
+        }
+
+        .pagination .button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+
+        .pagination-indicator {
+            font-size: 14px;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flex {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .button {
+                margin: 10px 0;
+                width: 100%;
+            }
+
+            select, input[type="text"] {
+                margin-bottom: 10px;
+            }
+
+            #userCount, #loading {
+                text-align: center;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .h-64 {
+                min-height: 250px;
+            }
+
+            #pieChartContainer {
+                width: 100%;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .flex {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .button {
+                margin: 5px;
+            }
+
+            select, input[type="text"] {
+                width: auto;
+            }
+
+            #userCount {
+                text-align: right;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+
+            .h-64 {
+                min-height: 300px;
+            }
+
+            #pieChartContainer {
+                width: 90%;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .flex {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .button {
+                margin: 5px;
+            }
+
+            select, input[type="text"] {
+                width: auto;
+            }
+
+            #userCount {
+                text-align: right;
+            }
+
+            th, td {
+                padding: 10px 15px;
+            }
+
+            .h-64 {
+                min-height: 350px;
+            }
+
+            #pieChartContainer {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <button class="button back-button" onclick="goBack()">חזרה לדף הלומדות</button>
+    <h1 class="text-2xl font-bold mb-4" id="main-title">ממשק ניהול למידה</h1>
+    
+    <div class="flex">
+        <button class="button" id="refresh-button" onclick="refreshData()">רענן נתונים</button>
+        <select id="departmentSelect" onchange="applyFilters()">
+            <option value="all">כל המחלקות</option>
+        </select>
+        <select id="yearSelect" onchange="applyFilters()">
+            <option value="all">כל השנים</option>
+        </select>
+        <select id="monthSelect" onchange="applyFilters()">
+            <option value="all">כל החודשים</option>
+            <option value="1">ינואר</option>
+            <option value="2">פברואר</option>
+            <option value="3">מרץ</option>
+            <option value="4">אפריל</option>
+            <option value="5">מאי</option>
+            <option value="6">יוני</option>
+            <option value="7">יולי</option>
+            <option value="8">אוגוסט</option>
+            <option value="9">ספטמבר</option>
+            <option value="10">אוקטובר</option>
+            <option value="11">נובמבר</option>
+            <option value="12">דצמבר</option>
+        </select>
+        <select id="textFilterSelect" onchange="applyFilters()">
+            <option value="all">כל הסטטוסים</option>
+            <option value="CompletionDates">תאריך סיום הלומדה</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="חפש..." onkeyup="applySearch()">
+        <button class="button" id="export-button" onclick="exportToExcel()">ייצא לאקסל</button>
+    </div>
+
+    <span id="userCountValue">0</span> משתמשים</div>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        טוען נתונים...
+    </div>
+
+    <div class="table-container container">
+        <div class="card-title" id="data-table-title">טבלת נתונים</div>
+        <div class="h-64 bg-gray-200" id="dataTable">
+            <!-- Add the table-wrapper div here -->
+            <div class="table-wrapper">
+                <table id="data-table">
+                    <thead>
+                        <tr id="table-headers">
+                            <!-- Headers will be dynamically inserted here -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="button" id="prevPage" onclick="prevPage()" disabled>הקודם</button>
+                <span class="pagination-indicator" id="page-indicator">דף 1 מתוך 1</span>
+                <button class="button" id="nextPage" onclick="nextPage()" disabled>הבא</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="container">
+        <div class="card-title" id="course-status-title">סטטוס למידה</div>
+        <div class="h-64" id="pieChartContainer">
+            <!-- Pie chart will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+<script>
+    let originalData = []; // To store the original fetched data
+    let filteredData = []; // To store the currently filtered data
+    let currentPage = 1; // To track the current page
+    const rowsPerPage = 10; // Number of rows per page
+    let sortOrder = {}; // To keep track of sorting order for each column
+
+    function goBack() {
+    window.location.href = "coursebrowser/index.html"; // Replace with the actual URL of your course browsing page
+    }   
+
+    function validateData(data) {
+        if (!Array.isArray(data)) {
+            console.error('הנתונים אינם מערך');
+            return false;
+        }
+        
+        if (data.length === 0) {
+            console.error('המערך ריק');
+            return false;
+        }
+        
+        console.log('נתונים ראשוניים:', data.slice(0, 5));
+        
+        const isArrayOfArrays = data.every(item => Array.isArray(item));
+        
+        if (isArrayOfArrays) {
+            console.log('הנתונים הם מערך של מערכים');
+            const headers = data[0];
+            console.log('כותרות אפשריות:', headers);
+            return true;
+        } else {
+            console.error('הפריטים אינם מערכים כמצופה');
+            return false;
+        }
+    }
+
+    function fetchData() {
+        console.log('טוען נתונים...');
+        return fetch('https://script.google.com/macros/s/AKfycbyJeK3nv37OUcKVYHbwM-AQW-JV2O9VL5bIA9wTXAqycZ2QgCyjsHwS0vHAmdyoJbxE6Q/exec')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`שגיאת HTTP! סטטוס: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('הנתונים נטענו:', data); // Log the fetched data
+
+                // If the data is an array of objects, convert it to array of arrays
+                if (Array.isArray(data) && typeof data[0] === 'object' && data[0] !== null) {
+                    const headers = Object.keys(data[0]);
+                    const rows = data.map(item => headers.map(header => item[header]));
+                    return [headers, ...rows]; // Combine headers with rows to form array of arrays
+                }
+
+                return data;
+            })
+            .catch(error => {
+                console.error('שגיאה בטעינת הנתונים:', error);
+                throw error;
+            });
+    }
+
+    function formatDateString(value) {
+        const date = new Date(value);
+        if (!isNaN(date)) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const year = String(date.getFullYear()).slice(-2);
+            return `${day}/${month}/${year}`;
+        }
+        return value; // If not a valid date, return the original string
+    }
+
+    function sortTable(data, columnIndex) {
+    const headers = data[0];
+    const isDateColumn = headers[columnIndex].toLowerCase().includes('date') || headers[columnIndex].toLowerCase().includes('תאריך');
+    const isIdColumn = headers[columnIndex].toLowerCase().includes('id');
+
+    const sortedData = data.slice(1).sort((a, b) => {
+        let aValue = a[columnIndex];
+        let bValue = b[columnIndex];
+
+        // If the column is an ID column, attempt to sort numerically
+        if (isIdColumn) {
+            const aIsNumeric = !isNaN(aValue) && !isNaN(parseFloat(aValue));
+            const bIsNumeric = !isNaN(bValue) && !isNaN(parseFloat(bValue));
+
+            if (aIsNumeric && bIsNumeric) {
+                return sortOrder[columnIndex] ? bValue - aValue : aValue - bValue;
+            } else {
+                // Sort as strings if not purely numeric
+                return sortOrder[columnIndex] ? String(bValue).localeCompare(String(aValue)) : String(aValue).localeCompare(String(bValue));
+            }
+        }
+
+        // If the column is a date, sort as dates
+        if (isDateColumn) {
+            const dateA = new Date(aValue);
+            const dateB = new Date(bValue);
+
+            if (!isNaN(dateA) && !isNaN(dateB)) {
+                return sortOrder[columnIndex] ? dateB - dateA : dateA - dateB;
+            } else {
+                return sortOrder[columnIndex] ? bValue.localeCompare(aValue) : aValue.localeCompare(bValue);
+            }
+        }
+
+        // Default to string comparison for other columns
+        return sortOrder[columnIndex] ? String(bValue).localeCompare(String(aValue)) : String(aValue).localeCompare(String(bValue));
+    });
+
+    // Toggle sort order for the next click
+    sortOrder[columnIndex] = !sortOrder[columnIndex];
+
+    // Rebuild the table with the sorted data
+    filteredData = [headers, ...sortedData];
+    renderTable(currentPage);
+}
+
+    function applyFilters() {
+        const departmentSelect = document.getElementById('departmentSelect').value;
+        const yearSelect = document.getElementById('yearSelect').value;
+        const monthSelect = document.getElementById('monthSelect').value;
+        const textFilterSelect = document.getElementById('textFilterSelect') ? document.getElementById('textFilterSelect').value : 'all';
+
+        filteredData = [originalData[0]]; // Include headers
+        filteredData.push(...originalData.slice(1).filter(row => {
+            const departmentMatch = departmentSelect !== 'all' ? row[getColumnIndex(originalData[0], 'מחלקה')] === departmentSelect : true;
+            const dateCell = row[getColumnIndex(originalData[0], 'תאריך סיום הלומדה')];
+            const date = new Date(dateCell); // Use the built-in Date parser
+
+            const yearMatch = yearSelect !== 'all' ? date.getFullYear() === parseInt(yearSelect) : true;
+            const monthMatch = monthSelect !== 'all' ? date.getMonth() + 1 === parseInt(monthSelect) : true;
+
+            const textMatch = textFilterSelect === 'CompletionDates'
+                ? !isNaN(Date.parse(dateCell)) // Show only valid dates
+                : (textFilterSelect !== 'all' ? dateCell === textFilterSelect : true);
+
+            return departmentMatch && yearMatch && monthMatch && textMatch;
+        }));
+
+        console.log('Filtered Data:', filteredData); // Debug filtered data
+
+        currentPage = 1; // Reset to the first page after filtering
+        renderTable(currentPage);
+    }
+
+    function renderTable(page) {
+    const tbody = document.querySelector('#data-table tbody');
+    const headerRow = document.getElementById('table-headers');
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    tbody.innerHTML = '';
+    headerRow.innerHTML = '';
+
+    if (filteredData.length === 0) {
+        document.getElementById('dataTable').innerHTML = 'אין נתונים זמינים';
+        return;
+    }
+
+    const headers = filteredData[0];
+    headers.forEach((header, index) => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        th.classList.add('sortable');
+        th.onclick = () => {
+            sortTable(filteredData, index);
+        };
+        headerRow.appendChild(th);
+    });
+
+    filteredData.slice(1).slice(start, end).forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach((cellData, cellIndex) => {
+            const td = document.createElement('td');
+
+            // Check if the current column is the phone number column
+            if (headers[cellIndex].toLowerCase().includes('phone')) {
+                td.textContent = cellData.toString().padStart(10, '0'); // Ensure leading zero
+            } else if (headers[cellIndex].toLowerCase().includes('id')) {
+                td.textContent = String(cellData); // Ensure ID is treated as a string
+            } else if (!isNaN(Date.parse(cellData))) {
+                // If the cell data can be parsed as a date, format it as DD/MM/YY
+                td.textContent = formatDateString(cellData);
+            } else {
+                td.textContent = cellData; // For non-date text, show the value as is
+            }
+
+            td.style.border = '1px solid #ccc';
+            td.style.padding = '10px 15px';
+            td.style.color = '#000';
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    updateUserCount(filteredData.length - 1); // Update the user count
+    renderPieChart(filteredData); // Render pie chart based on the filtered data
+    updatePaginationControls();
+}
+
+    function getColumnIndex(headers, columnName) {
+        return headers.findIndex(header => 
+            header.toLowerCase().includes(columnName.toLowerCase())
+        );
+    }
+
+    function renderPieChart(data) {
+        console.log('טוען תרשים עוגה עם נתונים:', data.slice(0, 5));
+        const pieChartContainer = document.getElementById('pieChartContainer');
+        pieChartContainer.innerHTML = '';
+
+        const ctx = document.createElement('canvas');
+        pieChartContainer.appendChild(ctx);
+
+        const headers = data[0];
+        const endDateIndex = getColumnIndex(headers, 'תאריך סיום הלומדה');
+
+        if (endDateIndex === -1) {
+            console.error('לא ניתן למצוא עמודת תאריך סיום הלומדה');
+            return;
+        }
+
+        let courseFinished = 0;
+        let otherStatuses = 0;
+
+        data.slice(1).forEach(row => {
+            const endDateValue = row[endDateIndex];
+            const endDate = new Date(endDateValue);
+
+            if (!endDateValue || isNaN(endDate.getTime())) {
+                otherStatuses++; // Cases where the date is not valid or not provided
+            } else {
+                courseFinished++; // Cases where the end date is valid (meaning finished)
+            }
+        });
+
+        const chartData = {
+            labels: ["סיימ/ה את הלומדה", "טרם סיימ/ה"],
+            datasets: [{
+                data: [courseFinished, otherStatuses],
+                backgroundColor: ['#FF6384', '#FFCE56'],
+            }]
+        };
+
+        const options = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const index = tooltipItem.dataIndex;
+                            const label = chartData.labels[index];
+                            const value = chartData.datasets[0].data[index];
+                            return `משתמשים: ${value}`;
+                        }
+                    }
+                },
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            }
+        };
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: chartData,
+            options: options
+        });
+    }
+
+    function updateUserCount(count) {
+        document.getElementById('userCountValue').textContent = count;
+    }
+
+    function updatePaginationControls() {
+        const totalPages = Math.ceil((filteredData.length - 1) / rowsPerPage);
+        document.getElementById('prevPage').disabled = currentPage === 1;
+        document.getElementById('nextPage').disabled = currentPage === totalPages;
+        document.getElementById('page-indicator').textContent = `דף ${currentPage} מתוך ${totalPages}`;
+    }
+
+    function showLoading() {
+        document.getElementById('loading').style.display = 'block';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable(currentPage);
+        }
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil((filteredData.length - 1) / rowsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable(currentPage);
+        }
+    }
+
+    function formatDateForExport(value) {
+    const date = new Date(value);
+    if (!isNaN(date)) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const year = date.getFullYear(); // Full year for YYYY format
+        return `${day}/${month}/${year}`;
+    }
+    return value; // If not a valid date, return the original string
+}
+
+
+    function refreshData() {
+    // Reset all filters to their default values
+    document.getElementById('departmentSelect').value = 'all';
+    document.getElementById('yearSelect').value = 'all';
+    document.getElementById('monthSelect').value = 'all';
+    document.getElementById('textFilterSelect').value = 'all';
+    document.getElementById('searchInput').value = '';
+
+    showLoading();
+    console.log('מרענן נתונים...');
+    fetchData()
+        .then(data => {
+            if (validateData(data)) {
+                originalData = data; // Store original data for filtering
+                filteredData = data; // Initialize filtered data
+                localStorage.setItem('fetchedData', JSON.stringify(data));
+                renderTable(currentPage);
+                populateFilters(data);
+            } else {
+                console.warn('מבנה הנתונים אינו תקין. לא ניתן לטעון.');
+                document.getElementById('dataTable').innerHTML = 'מבנה נתונים שגוי';
+            }
+        })
+        .catch(error => {
+            console.error('שגיאה ברענון הנתונים:', error);
+            document.getElementById('dataTable').innerHTML = 'שגיאה בטעינת הנתונים: ' + error.message;
+        })
+        .finally(() => {
+            hideLoading();
+        });
+}
+
+    function populateFilters(data) {
+        console.log('טוען את המסננים עם נתונים');
+
+        const headers = data[0];
+        const departmentIndex = getColumnIndex(headers, 'מחלקה');
+        const dateIndex = getColumnIndex(headers, 'תאריך סיום הלומדה');
+
+        if (departmentIndex === -1 || dateIndex === -1) {
+            console.error('לא ניתן למצוא עמודות מחלקה או תאריך');
+            return;
+        }
+
+        const departments = [...new Set(data.slice(1).map(row => row[departmentIndex]))];
+        const years = [...new Set(data.slice(1)
+            .map(row => {
+                const date = new Date(row[dateIndex]);
+                return isNaN(date) ? null : date.getFullYear();
+            })
+            .filter(year => year !== null)
+        )];
+
+        const textValues = [...new Set(data.slice(1)
+            .map(row => {
+                const date = new Date(row[dateIndex]);
+                return isNaN(date) ? row[dateIndex] : null; // Filter for text values in date cells
+            })
+            .filter(text => text !== null) // Remove null values
+        )];
+
+        const departmentSelect = document.getElementById('departmentSelect');
+        departmentSelect.innerHTML = `<option value="all">כל המחלקות</option>`;
+        departments.forEach(department => {
+            const option = document.createElement('option');
+            option.value = department;
+            option.textContent = department;
+            departmentSelect.appendChild(option);
+        });
+
+        const yearSelect = document.getElementById('yearSelect');
+        yearSelect.innerHTML = `<option value="all">כל השנים</option>`;
+        years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        });
+
+        const textFilterSelect = document.getElementById('textFilterSelect');
+        textFilterSelect.innerHTML = `
+            <option value="all">כל הסטטוסים</option>
+            <option value="CompletionDates">תאריך סיום הלומדה</option>
+        `;
+        textValues.forEach(text => {
+            const option = document.createElement('option');
+            option.value = text;
+            option.textContent = text;
+            textFilterSelect.appendChild(option);
+        });
+    }
+
+    function applySearch() {
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    
+    // Filter the data based on the search value
+    filteredData = [originalData[0], ...originalData.slice(1).filter(row => 
+        row.some(cell => String(cell).toLowerCase().includes(searchValue))
+    )];
+
+    currentPage = 1; // Reset to the first page after search
+    renderTable(currentPage); // Re-render the table with the filtered data
+}
+
+    function translateToEnglish(value) {
+        const translations = {
+            "כל המחלקות": "All_Departments",
+            "מכירות": "Sales",
+            "משאבי אנוש": "Human_Resources",
+            "שירות לקוחות": "Customer_Service",
+            "פיתוח עסקי": "Business_Development",
+            "IT": "IT",
+            "תפעול": "Operations",
+            "פיננסים": "Finance",
+            "שיווק": "Marketing",
+            "כל החודשים": "All_Months",
+            "ינואר": "January",
+            "פברואר": "February",
+            "מרץ": "March",
+            "אפריל": "April",
+            "מאי": "May",
+            "יוני": "June",
+            "יולי": "July",
+            "אוגוסט": "August",
+            "ספטמבר": "September",
+            "אוקטובר": "October",
+            "נובמבר": "November",
+            "דצמבר": "December",
+            "כל השנים": "All_Years",
+            "תאריך סיום הלומדה": "CompletionDates",
+            "כל הסטטוסים": "All_Statuses",
+            "סיימ/ה את הלומדה": "Completed_Course",
+            "סטטוסים אחרים": "Other_Statuses"
+        };
+        return translations[value] || value;
+    }
+
+    function generateFileName() {
+    const department = document.getElementById('departmentSelect').value;
+    const year = document.getElementById('yearSelect').value;
+    const month = document.getElementById('monthSelect').value;
+    const textFilter = document.getElementById('textFilterSelect').value;
+
+    // Mapping English filter values to Hebrew
+    const translations = {
+        "CompletionDates": "תאריך_סיום_הלומדה",
+        "1": "ינואר",
+        "2": "פברואר",
+        "3": "מרץ",
+        "4": "אפריל",
+        "5": "מאי",
+        "6": "יוני",
+        "7": "יולי",
+        "8": "אוגוסט",
+        "9": "ספטמבר",
+        "10": "אוקטובר",
+        "11": "נובמבר",
+        "12": "דצמבר",
+        "all": "כל_הערכים",
+        "Sales": "מכירות",
+        "Human Resources": "משאבי_אנוש",
+        "Customer Service": "שירות_לקוחות",
+        "Business Development": "פיתוח_עסקי",
+        "IT": "IT",
+        "Operations": "תפעול",
+        "Finance": "פיננסים",
+        "Marketing": "שיווק"
+    };
+
+    let fileNameParts = [];
+
+    // Translate and add filters to the filename if they are not set to 'all'
+    if (textFilter !== "all") fileNameParts.push(translations[textFilter] || textFilter);
+    if (month !== "all") fileNameParts.push(translations[month] || month);
+    if (year !== "all") fileNameParts.push(year);
+    if (department !== "all") fileNameParts.push(translations[department] || department);
+
+    let fileName = fileNameParts.length > 0 ? fileNameParts.join('_') : "כל_הסטטוסים_כל_החודשים_כל_השנים_כל_המחלקות";
+
+    return `${fileName}.xlsx`;
+}
+
+function exportToExcel() {
+    const formattedData = filteredData.map((row, rowIndex) => {
+        return row.map((cell, cellIndex) => {
+            // Assuming the date is in the specific column (e.g., column index 3)
+            if (rowIndex > 0 && !isNaN(Date.parse(cell))) {
+                return formatDateForExport(cell); // Format the date for export
+            }
+            return cell;
+        });
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(formattedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DataTable");
+
+    const fileName = generateFileName();
+    XLSX.writeFile(wb, fileName);
+
+    console.log(`File ${fileName} has been generated and downloaded.`);
+}
+
+
+
+    // Call refreshData() after the page loads to populate the table
+    refreshData();
+</script>
+
+</body>
+</html>
